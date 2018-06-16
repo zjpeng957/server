@@ -1,0 +1,8 @@
+<RCC>
+  <qresource>
+    <file>src/Count.png</file>
+    <file>src/Home.png</file>
+    <file>src/Setting.png</file>
+    <file>src/style.qss</file>
+  </qresource>
+</RCC>
