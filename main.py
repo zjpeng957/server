@@ -7,8 +7,10 @@ from socket import *
 import threading
 import detail
 import time
+import database
+import datetime
 
-HOST = '10.206.12.149'
+HOST = '10.8.161.247'
 #10.206.12.147
 PORT = 8888
 BUFSIZ = 1024
@@ -18,7 +20,13 @@ MAXCONNECT = 8
 work = []
 wait = []
 clients = []
+roomType={'311A':0,'311B':0,'312A':0,'312B':0,'313A':0,'313B':0,'314A':0,'315A':0}
 
+energy={"311A":0.00,"311B":0.00,"312A":0.00,"312B":0.00,"313A":0.00,"313B":0.00,"314A":0.00,"315A":0.00}
+cost={"311A":0.00,"311B":0.00,"312A":0.00,"312B":0.00,"313A":0.00,"313B":0.00,"314A":0.00,"315A":0.00}
+Money={1:1.00,2:2.00,3:3.00}
+Power={1:2.00,2:4.00,3:6.00}
+Tempreture={1:0.5,2:0.75,3:1}
 
 class Server(object):
 
@@ -47,7 +55,7 @@ class Server(object):
         self.setPara(setting)
 
         for i in range(8):
-            client = Client(self.ui,i, self.mode, self.defaultTemp, self.defaultSpeed, self.lowestTemp, self.highestTemp)
+            client = Client(self.ui,i, self.mode, self.defaultTemp, self.defaultSpeed, self.lowestTemp, self.highestTemp,self.no_of_service)
             clients.append(client)
 
     def setPara(self,setting):
@@ -55,10 +63,13 @@ class Server(object):
         self.defaultSpeed=setting['defaultFan']
         self.lowestTemp=setting['lowest']
         self.highestTemp=setting['highest']
+        self.no_of_service=setting['no_of_service']
         if setting['mode']=='制冷':
             self.mode=0
         else:
             self.mode=1
+
+
 
 
     def run(self):
@@ -77,30 +88,29 @@ class Server(object):
                     break
             #tcpCliSock.close()
 
-
     def Switch(self):
         while True:
-            time.sleep(20)
-            #if len(wait) > 0 and len(work) == 4:
+            time.sleep(10)
             print("wait:", wait)
             print("work", work)
             if len(wait) > 0:
-                #message = ['10', clients[work[0]].roomnumber]
-                #clients[work[0]].send_msg(message)
-                for i in range(4):
+                j = len(wait)
+                p = 0
+                for i in range(self.no_of_service):
                     if clients[work[i]].vip == 0:
-                        work.append(wait[i])
-                        clients[wait[i]].work = 1
-                        wait.remove(wait[i])
-                        wait.append(work[i])
-                        clients[work[i]].work = 0
-                        work.remove(work[i])
-                        break
+                        if j > p:
+                            work.append(wait[p])
+                            clients[wait[p]].work = 1
+                            wait.remove(wait[p])
+                            wait.append(work[i])
+                            clients[work[i]].work = 0
+                            work.remove(work[i])
+                            p = p + 1
 
 				
 class Client(object):
     instructions=[]
-    def __init__(self,ui,roomnumber,mode,dt,ds,lt,ht):#,,0,34.0,1,0.0,50.0
+    def __init__(self,ui,roomnumber,mode,dt,ds,lt,ht,no):#,,0,34.0,1,0.0,50.0
         self.open = 0
         self.tcpCliSock = None
         self.addr = None
@@ -108,11 +118,11 @@ class Client(object):
         self.mode = mode
         self.num = 0
         self.roomnumber = ''
-        self.default_temp = float("%.1f" % dt)
-        self.target_temp = float("%.1f" % dt)
+        self.default_temp = dt
+        self.target_temp = dt
         self.speed = ds
-        self.Low_temp = float("%.1f" % lt)
-        self.High_temp = float("%.1f" % ht)
+        self.Low_temp = lt
+        self.High_temp = ht
         self.Cost = 0.00
         self.vip = 0
         self.Energy = 0.00
@@ -120,15 +130,21 @@ class Client(object):
         self.temp = 0.0
         self.work = 0
         self.terminate = 1
+        self.PAIRING=no
 
     def set_vip(self):
         self.vip = 1
 
+    def no_vip(self):
+        self.vip = 0
+
     def initialization(self,mode,default_temp,low,high,money):
         self.mode = mode
-        self.default_temp = float("%.1f" % default_temp)
-        self.Low_temp = float("%.1f" % low)
-        self.High_temp = float("%.1f" % high)
+
+        self.default_temp = default_temp
+        self.Low_temp = low
+        self.High_temp = high
+
         self.money = money
 
     def mes_detect(self,str):
@@ -153,7 +169,17 @@ class Client(object):
                     if self.open == 0:
                         self.open = 1
                         self.roomnumber = str(inslist[1])
-                        self.temp = float("%.1f" % float(inslist[2]))
+                        self.temp = float(inslist[2])
+
+                        if roomType[self.roomnumber]==0:
+                            self.no_vip()
+                        else:
+                            self.set_vip()
+
+                        message = ['2', '1', self.mode, float("%.1f" % self.default_temp), self.speed,
+                                   float("%.1f" % self.Low_temp), float("%.1f" % self.High_temp), cost[self.roomnumber],
+                                   energy[self.roomnumber]]
+                        self.send_msg(message)
                         '''
                         self.Signal_target_temp.emit(self.roomnumber, self.target_temp)
                         self.Signal_temp.emit(self.roomnumber, self.temp)
@@ -167,53 +193,66 @@ class Client(object):
                         self.ui.updateCurrentFan(self.roomnumber, self.speed)
                         self.ui.updateState(self.roomnumber, self.open)
 
-
-                        if len(work) < 4:
+                        if len(work) < self.PAIRING:
                             self.work = 1
                             work.append(self.num)
                         else:
                             if self.vip == 1:
                                 self.work = 0
-                                wait.insert(0,self.num)
+                                wait.insert(0, self.num)
                             else:
                                 self.work = 0
                                 wait.append(self.num)
-                        #return pack 2
-                        message = ['2', '1',self.mode,self.default_temp,self.speed,self.Low_temp,self.High_temp,self.Cost,self.Energy]
-                        self.send_msg(message)
+                            # return pack 2
+                            '''
+                                                    数据库
+                                                    '''
+                        database.insertOpenRequest(self.roomnumber, self.open)
+                        database.updateStatistics_work_times(self.roomnumber,datetime.datetime.now().strftime('%Y-%m-%d'))
+                        database.updateStatistics_report_num(self.roomnumber,
+                                                             datetime.datetime.now().strftime('%Y-%m-%d'))
+                        database.insertReport(self.roomnumber, code, self.temp, self.target_temp, self.speed,
+                                              energy[self.roomnumber], cost[self.roomnumber])
+
+
                     else:
-                        message = ['2', '0', self.mode, self.default_temp, self.speed, self.Low_temp, self.High_temp,self.Cost, self.Energy]
+                        message = ['2', '0', self.mode, float("%.1f" % self.default_temp), self.speed,
+                                   float("%.1f" % self.Low_temp), float("%.1f" % self.High_temp), cost[self.roomnumber],
+                                   energy[self.roomnumber]]
                         self.send_msg(message)
                 elif code == 3:
-                    if inslist[1] == self.roomnumber:
-                        self.open = 0
-                        #self.Signal_state.emit(self.roomnumber, self.open)
-                        self.ui.updateState(self.roomnumber, self.open)
-                        self.work = 0
-                        #return pack 4
-                        message = ['4', '1']
-                        self.send_msg(message)
-                    else:
-                        message = ['4', '0']
-                        self.send_msg(message)
+                        if inslist[1] == self.roomnumber:
+                            self.open = 0
+                            self.ui.updateState(self.roomnumber, self.open)
+                            self.work = 0
+                            message = ['4', '1']
+                            self.send_msg(message)
+                            self.tcpCliSock.close()
+                            self.terminate = 1
+
+                            database.updateStatistics_report_num(self.roomnumber,
+                                                                 datetime.datetime.now().strftime('%Y-%m-%d'))
+                            database.insertReport(self.roomnumber, code, self.temp, self.target_temp, self.speed,
+                                                  energy[self.roomnumber], cost[self.roomnumber])
+                        else:
+                            message = ['4', '0']
+                            self.send_msg(message)
                 elif code == 5:
                     if inslist[1] == self.roomnumber:
                         self.speed = int(inslist[2])
-                        #self.Signal_speed.emit(self.roomnumber, self.speed)
+                        # self.Signal_speed.emit(self.roomnumber, self.speed)
                         self.ui.updateTargetFan(self.roomnumber, self.speed)
                         self.ui.updateCurrentFan(self.roomnumber, self.speed)
-                        if len(work) < 4:
-                            self.work = 1
-                            work.append(self.num)
-                        else:
-                            if self.vip == 1:
-                                self.work = 0
-                                wait.insert(0,self.num)
-                            else:
-                                self.work = 0
-                                wait.append(self.num)
+                        # return pack 6
+                        '''
+                        数据库
+                        '''
+                        database.insertSpeedRequest(self.roomnumber, self.speed)
+                        database.updateStatistics_report_num(self.roomnumber,
+                                                             datetime.datetime.now().strftime('%Y-%m-%d'))
+                        database.insertReport(self.roomnumber, code, self.temp, self.target_temp, self.speed,
+                                              energy[self.roomnumber], cost[self.roomnumber])
 
-                        #return pack 6
                         message = ['6', '1']
                         self.send_msg(message)
                     else:
@@ -221,30 +260,29 @@ class Client(object):
                         self.send_msg(message)
                 elif code == 7:
                     if inslist[1] == self.roomnumber:
-                        self.target_temp = float("%.1f" % float(inslist[2]))
-                        #self.Signal_target_temp.emit(self.roomnumber, self.target_temp)
-                        self.ui.updateTargetTemp(self.roomnumber, ("%.1f" %self.target_temp))
-                        if len(work) < 4:
-                            self.work = 1
-                            work.append(self.num)
-                        else:
-                            if self.vip == 1:
-                                self.work = 0
-                                wait.insert(0,self.num)
-                            else:
-                                self.work = 0
-                                wait.append(self.num)
-                        #return pack 8
+                        self.target_temp = float(inslist[2])
+                        # self.Signal_target_temp.emit(self.roomnumber, self.target_temp)
+                        self.ui.updateTargetTemp(self.roomnumber, ("%.1f" % self.target_temp))
+                        # return pack 8
+                        '''
+                        数据库
+                        '''
+                        database.insertTempRequest(self.roomnumber, self.target_temp)
+                        database.updateStatistics_report_num(self.roomnumber,
+                                                             datetime.datetime.now().strftime('%Y-%m-%d'))
+                        database.insertReport(self.roomnumber, code, self.temp, self.target_temp, self.speed,
+                                              energy[self.roomnumber], cost[self.roomnumber])
+
                         message = ['8', '1']
                         self.send_msg(message)
                     else:
                         message = ['8', '0']
                         self.send_msg(message)
                 elif code == 11:
-                    self.temp = float("%.1f" % float(inslist[2]))
-                    #self.Signal_temp.emit(self.roomnumber, self.temp)
-                    self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" %self.temp))
-                    if len(work) < 4:
+                    self.temp = float(inslist[2])
+                    # self.Signal_temp.emit(self.roomnumber, self.temp)
+                    self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+                    if len(work) < self.PAIRING:
                         self.work = 1
                         work.append(self.num)
                     else:
@@ -254,7 +292,7 @@ class Client(object):
                         else:
                             self.work = 0
                             wait.append(self.num)
-                    #into the list
+                    # into the list
                 else:
                     print("code error!")
                     sys.exit()
@@ -284,6 +322,10 @@ class Client(object):
                 if not data:
                     break
                 code, list = self.mes_detect(str(data, 'utf-8'))
+                '''
+                数据库
+                '''
+                #database.insertReport(self.roomnumber, code, self.temp, self.target_temp, self.speed, self.Energy,self.Cost)
                 print('\t\t\t',str(data))
                 self.instructions.append(list)
             except Exception:
@@ -315,97 +357,96 @@ class Client(object):
                 print("send error!")
                 sys.exit()
 
-
     def temp_control(self):
-        #while True:
-            if self.target_temp > self.temp and self.target_temp > self.temp + self.speed:
-                if self.mode == 1:
-                    self.temp = float("%.1f" % (self.temp + self.speed))
-                    self.Energy = float("%.2f" % (self.Energy + self.speed * 2.00))
-                    self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
-                    self.ui.updateEnAndCost(self.roomnumber, ("%.2f" % self.Energy))
-                    #self.Signal_temp.emit(self.roomnumber, self.temp)
-                    #self.Signal_energy.emit(self.roomnumber, self.Energy)
-                else:
-                    self.work = 0
-                    work.remove(self.num)
-                    if len(wait) > 0:
-                        work.append(wait[0])
-                        clients[wait[0]].work = 1
-                        wait.remove(wait[0])
-                    #message = ['10', self.roomnumber]
-                    #self.send_msg(message)
-                    self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" %self.temp))
-                    self.ui.updateEnAndCost(self.roomnumber, ("%.2f" %self.Energy))
-            elif self.target_temp > self.temp and self.target_temp <= self.temp + self.speed:
-                if self.mode == 1:
-                    self.temp = float("%.1f" % self.target_temp)
-                    self.Energy = float("%.2f" % (self.Energy + self.speed * 2.00))
-                self.work = 0
-                work.remove(self.num)
-                if len(wait) > 0:
-                    work.append(wait[0])
-                    clients[wait[0]].work = 1
-                    wait.remove(wait[0])
-                #message = ['10',self.roomnumber]
-                #self.send_msg(message)
-                self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" %self.temp))
-                self.ui.updateEnAndCost(self.roomnumber, ("%.2f" %self.Energy))
-                #self.Signal_temp.emit(self.roomnumber, self.temp)
-                #self.Signal_energy.emit(self.roomnumber, self.Energy)
-            elif self.target_temp < self.temp and self.target_temp < self.temp - self.speed:
-                if self.mode == 0:
-                    self.temp = float("%.1f" % (self.temp - self.speed))
-                    self.Energy = float("%.2f" % (self.Energy + self.speed * 2.00))
-                    self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" %self.temp))
-                    self.ui.updateEnAndCost(self.roomnumber, ("%.2f" %self.Energy))
-                    #self.Signal_temp.emit(self.roomnumber, self.temp)
-                    #self.Signal_energy.emit(self.roomnumber, self.Energy)
-                else:
-                    self.work = 0
-                    work.remove(self.num)
-                    if len(wait) > 0:
-                        work.append(wait[0])
-                        clients[wait[0]].work = 1
-                        wait.remove(wait[0])
-                    #message = ['10', self.roomnumber]
-                    #self.send_msg(message)
-                    self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" %self.temp))
-                    self.ui.updateEnAndCost(self.roomnumber, ("%.2f" %self.Energy))
-            elif self.target_temp < self.temp and self.target_temp >= self.temp - self.speed:
-                if self.mode == 0:
-                    self.temp = float("%.1f" % self.target_temp)
-                    self.Energy = float("%.2f" % (self.Energy + self.speed * 2.00))
-                self.work = 0
-                work.remove(self.num)
-                if len(wait) > 0:
-                    work.append(wait[0])
-                    clients[wait[0]].work = 1
-                    wait.remove(wait[0])
-                #message = ['10', self.roomnumber]
-                #self.send_msg(message)
-                self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" %self.temp))
-                self.ui.updateEnAndCost(self.roomnumber, ("%.2f" %self.Energy))
-                #self.Signal_temp.emit(self.roomnumber, self.temp)
-                #self.Signal_energy.emit(self.roomnumber, self.Energy)
-            elif self.target_temp == self.temp:
-                self.work = 0
-                work.remove(self.num)
-                if len(wait) > 0:
-                    work.append(wait[0])
-                    clients[wait[0]].work = 1
-                    wait.remove(wait[0])
-                #message = ['10', self.roomnumber]
-                #self.send_msg(message)
-                self.Energy = self.Energy
-                self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" %self.temp))
-                self.ui.updateEnAndCost(self.roomnumber, ("%.2f" %self.Energy))
-                #self.Signal_temp.emit(self.roomnumber, self.temp)
-                #self.Signal_energy.emit(self.roomnumber, self.Energy)
+        if self.target_temp > self.temp and self.target_temp > self.temp + Tempreture[self.speed]:
+            if self.mode == 1:
+                self.temp = self.temp + Tempreture[self.speed]
+                energy[self.roomnumber] = float("%.2f" % (energy[self.roomnumber] + Power[self.speed]))
+                cost[self.roomnumber] = float("%.2f" % (energy[self.roomnumber]*Money[self.speed]))
+                self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+                self.ui.updateEn(self.roomnumber, ("%.2f" % energy[self.roomnumber]))
+                self.ui.updateCost(self.roomnumber, ("%.2f" % cost[self.roomnumber]))
             else:
-                print("temp error!")
-                sys.exit()
-            self.Cost = float("%.2f" % (self.Energy * self.money))
+                self.work = 0
+                work.remove(self.num)
+                if len(wait) > 0:
+                    work.append(wait[0])
+                    clients[wait[0]].work = 1
+                    wait.remove(wait[0])
+                #message = ['10', self.roomnumber]
+                #self.send_msg(message)
+                self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+                self.ui.updateEn(self.roomnumber, ("%.2f" % energy[self.roomnumber]))
+                self.ui.updateCost(self.roomnumber, ("%.2f" % cost[self.roomnumber]))
+        elif self.target_temp > self.temp and self.target_temp <= self.temp + Tempreture[self.speed]:
+            if self.mode == 1:
+                self.temp = self.target_temp
+                energy[self.roomnumber] = float("%.2f" % (energy[self.roomnumber] + Power[self.speed]))
+                cost[self.roomnumber] = float("%.2f" % (energy[self.roomnumber]*Money[self.speed]))
+            self.work = 0
+            work.remove(self.num)
+            if len(wait) > 0:
+                work.append(wait[0])
+                clients[wait[0]].work = 1
+                wait.remove(wait[0])
+            #message = ['10', self.roomnumber]
+            #self.send_msg(message)
+            self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+            self.ui.updateEn(self.roomnumber, ("%.2f" % energy[self.roomnumber]))
+            self.ui.updateCost(self.roomnumber, ("%.2f" % cost[self.roomnumber]))
+        elif self.target_temp < self.temp and self.target_temp < self.temp - Tempreture[self.speed]:
+            if self.mode == 0:
+                self.temp = self.temp - Tempreture[self.speed]
+                energy[self.roomnumber] = float("%.2f" % (energy[self.roomnumber] + Power[self.speed]))
+                cost[self.roomnumber] = float("%.2f" % (energy[self.roomnumber]*Money[self.speed]))
+                self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+                self.ui.updateEn(self.roomnumber, ("%.2f" % energy[self.roomnumber]))
+                self.ui.updateCost(self.roomnumber, ("%.2f" % cost[self.roomnumber]))
+                # self.Signal_temp.emit(self.roomnumber, self.temp)
+                # self.Signal_energy.emit(self.roomnumber, self.Energy)
+            else:
+                self.work = 0
+                work.remove(self.num)
+                if len(wait) > 0:
+                    work.append(wait[0])
+                    clients[wait[0]].work = 1
+                    wait.remove(wait[0])
+                #message = ['10', self.roomnumber]
+                #self.send_msg(message)
+                self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+                self.ui.updateEn(self.roomnumber, ("%.2f" % energy[self.roomnumber]))
+                self.ui.updateCost(self.roomnumber, ("%.2f" % cost[self.roomnumber]))
+        elif self.target_temp < self.temp and self.target_temp >= self.temp - Tempreture[self.speed]:
+            if self.mode == 0:
+                self.temp = self.target_temp
+                energy[self.roomnumber] = float("%.2f" % (energy[self.roomnumber] + Power[self.speed]))
+                cost[self.roomnumber] = float("%.2f" % (energy[self.roomnumber]*Money[self.speed]))
+            self.work = 0
+            work.remove(self.num)
+            if len(wait) > 0:
+                work.append(wait[0])
+                clients[wait[0]].work = 1
+                wait.remove(wait[0])
+            #message = ['10', self.roomnumber]
+            #self.send_msg(message)
+            self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+            self.ui.updateEn(self.roomnumber, ("%.2f" % energy[self.roomnumber]))
+            self.ui.updateCost(self.roomnumber, ("%.2f" % cost[self.roomnumber]))
+        elif self.target_temp == self.temp:
+            self.work = 0
+            work.remove(self.num)
+            if len(wait) > 0:
+                work.append(wait[0])
+                clients[wait[0]].work = 1
+                wait.remove(wait[0])
+            #message = ['10', self.roomnumber]
+            #self.send_msg(message)
+            self.ui.updateCurrentTemp(self.roomnumber, ("%.1f" % self.temp))
+            self.ui.updateEn(self.roomnumber, ("%.2f" % energy[self.roomnumber]))
+            self.ui.updateCost(self.roomnumber,("%.2f" % cost[self.roomnumber]))
+        else:
+            print("temp error!")
+            sys.exit()
 
 
     def run(self):
@@ -418,9 +459,11 @@ class Client(object):
         while self.terminate == 0:
                 if self.work == 1:
                     self.temp_control()
-                    message = ['9', self.roomnumber, self.temp, ("%.2f" %self.Energy), ("%.2f" %self.Cost)]
+                    message = ['9', self.roomnumber, self.temp, ("%.2f" %energy[self.roomnumber]), ("%.2f" %cost[self.roomnumber])]
                     self.send_msg(message)
                     if self.work == 0:
+                        database.updateStatistics_temp_times(self.roomnumber,
+                                                             datetime.datetime.now().strftime('%Y-%m-%d'))
                         message = ['10', self.roomnumber]
                         self.send_msg(message)
                     '''
@@ -444,7 +487,9 @@ class Client(object):
                 time.sleep(5)
 
 class mMainWindow(mainWindow.Ui_MainWindow):
-    setting={'mode':'制冷','lowest':18.0,'highest':30.0,'defaultTemp':26.4,'defaultFan':1,'rate':1,'no_of_service':4,
+    setting={'mode':'制冷','lowest':18.0,'highest':30.0,'defaultTemp':26.4,'defaultFan':1,'lowRate':1,
+             'midRate':2,'highRate':3,'lowP':0.5,'midP':0.75,'highP':1.0,
+             'no_of_service':4,
              'roomType':[]}
     started=False
     roomList = ['311A', '311B', '312A', '312B', '313A', '313B', '314A', '315A']
@@ -468,13 +513,34 @@ class mMainWindow(mainWindow.Ui_MainWindow):
         self.serviceNoComboBox.addItem('6', 6)
         self.serviceNoComboBox.addItem('7', 7)
         self.serviceNoComboBox.addItem('8', 8)
-        self.serviceNoComboBox.setCurrentIndex(2)
+        self.serviceNoComboBox.setCurrentIndex(3)
+        self.lowTempLineEdit.setText('18')
+        self.highTempLineEdit.setText('30')
+        self.defaultTempLineEdit.setText('22')
+        self.lowRateLineEdit.setText('1')
+        self.midRateLineEdit.setText('2')
+        self.highRateLineEdit.setText('3')
+        self.lowPLlineEdit.setText('2')
+        self.midPineEdit.setText('4')
+        self.highPLineEdit.setText('6')
+        self.checkBox_1.setChecked(True)
+        self.checkBox_2.setChecked(True)
+        self.checkBox_3.setChecked(True)
+        self.checkBox_4.setChecked(True)
+        self.checkBox_5.setChecked(True)
+        self.checkBox_6.setChecked(True)
+        self.checkBox_7.setChecked(True)
+        self.checkBox_8.setChecked(True)
+
+
+
+
 
     def homeTabInit(self):
         if not self.started:
             for i in range(0,len(self.roomList)):
                 self.detailtableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(self.roomList[i]))
-                #self.detailtableWidget.setItem(i, 1, QtWidgets.QTableWidgetItem(self.setting['roomType'][i]))
+                self.detailtableWidget.setItem(i, 1, QtWidgets.QTableWidgetItem(str(roomType[self.roomList[i]])))
                 self.detailtableWidget.setItem(i, 2, QtWidgets.QTableWidgetItem('关'))
                 self.detailtableWidget.setItem(i, 3, QtWidgets.QTableWidgetItem('--'))
                 self.detailtableWidget.setItem(i, 4, QtWidgets.QTableWidgetItem('--'))
@@ -489,7 +555,7 @@ class mMainWindow(mainWindow.Ui_MainWindow):
 
         self.modeValuelabel.setText(self.setting['mode'])
         self.rangeValueLabel.setText(str(self.setting['lowest'])+'-'+str(self.setting['highest']))
-        self.rateValueLabel.setText(str(self.setting['rate']))
+        #self.rateValueLabel.setText(str(self.setting['rate']))
         self.serviceNoValueLabel.setText(str(self.setting['no_of_service']))
         self.defaultTempValueLabel.setText(str(self.setting['defaultTemp']))
 
@@ -510,8 +576,61 @@ class mMainWindow(mainWindow.Ui_MainWindow):
             self.setting['highest']=float(self.highTempLineEdit.text())
             self.setting['defaultTemp']=float(self.defaultTempLineEdit.text())
             self.setting['defaultFan']=self.defaultFanComboBox.currentData()
-            self.setting['rate']=int(self.rateLineEdit.text())
+            self.setting['lowRate']=float(self.lowRateLineEdit.text())
+            self.setting['midRate'] = float(self.midRateLineEdit.text())
+            self.setting['highRate'] = float(self.highRateLineEdit.text())
+            self.setting['lowP'] = float(self.lowPLlineEdit.text())
+            self.setting['midP'] = float(self.midPineEdit.text())
+            self.setting['highP'] = float(self.highPLineEdit.text())
             self.setting['no_of_service']=self.serviceNoComboBox.currentData()
+
+            global Money,Power,roomType
+            Money[1]=float(self.lowRateLineEdit.text())
+            Money[2]=float(self.midRateLineEdit.text())
+            Money[3]=float(self.highRateLineEdit.text())
+            Power[1]=float(self.lowPLlineEdit.text())
+            Power[2]=float(self.midPineEdit.text())
+            Power[3]=float(self.highPLineEdit.text())
+
+            if self.checkBox_1.isChecked():
+                roomType['311A'] = 0
+            else:
+                roomType['311A'] = 1
+
+            if self.checkBox_2.isChecked():
+                roomType['311B'] = 0
+            else:
+                roomType['311B'] = 1
+
+            if self.checkBox_3.isChecked():
+                roomType['312A'] = 0
+            else:
+                roomType['312A'] = 1
+
+            if self.checkBox_4.isChecked():
+                roomType['312B'] = 0
+            else:
+                roomType['312B'] = 1
+
+            if self.checkBox_5.isChecked():
+                roomType['313A'] = 0
+            else:
+                roomType['313A'] = 1
+
+            if self.checkBox_6.isChecked():
+                roomType['313B'] = 0
+            else:
+                roomType['313B'] = 1
+
+            if self.checkBox_7.isChecked():
+                roomType['314A'] = 0
+            else:
+                roomType['314A'] = 1
+
+            if self.checkBox_8.isChecked():
+                roomType['315A'] = 0
+            else:
+                roomType['315A'] = 1
 
             self.homeTabInit()
             self.tabWidget.widget(0).setEnabled(True)
@@ -570,6 +689,18 @@ class mMainWindow(mainWindow.Ui_MainWindow):
                 break
         self.detailtableWidget.setItem(i, 7, QtWidgets.QTableWidgetItem(str(energy)))
         self.detailtableWidget.setItem(i, 8, QtWidgets.QTableWidgetItem(str(energy*self.setting['rate'])))
+
+    def updateEn(self,id,energy):
+        for i in range(0,len(self.roomList)):
+            if self.roomList[i]==id:
+                break
+        self.detailtableWidget.setItem(i, 7, QtWidgets.QTableWidgetItem(str(energy)))
+
+    def updateCost(self,id,cost):
+        for i in range(0,len(self.roomList)):
+            if self.roomList[i]==id:
+                break
+        self.detailtableWidget.setItem(i, 8, QtWidgets.QTableWidgetItem(str(cost)))
 
 
 class WorkThread(QThread):

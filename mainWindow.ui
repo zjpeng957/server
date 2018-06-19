@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1270</width>
-    <height>680</height>
+    <width>1125</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -56,8 +56,47 @@
               <property name="sizeConstraint">
                <enum>QLayout::SetDefaultConstraint</enum>
               </property>
+              <item row="2" column="0">
+               <widget class="QLabel" name="serviceNoLabel">
+                <property name="font">
+                 <font>
+                  <family>微软雅黑</family>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">qproperty-alignment:'AlignCenter'</string>
+                </property>
+                <property name="text">
+                 <string>服务对象数</string>
+                </property>
+               </widget>
+              </item>
               <item row="4" column="1">
-               <widget class="QLabel" name="defaultTempValueLabel">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label">
+                <property name="font">
+                 <font>
+                  <family>微软雅黑</family>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">qproperty-alignment:'AlignCenter'</string>
+                </property>
+                <property name="text">
+                 <string>默认风速</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="modeValuelabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -79,6 +118,13 @@
                 </property>
                </spacer>
               </item>
+              <item row="3" column="1">
+               <widget class="QLabel" name="defaultTempValueLabel">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
               <item row="1" column="0">
                <widget class="QLabel" name="rangeLabel">
                 <property name="font">
@@ -95,43 +141,7 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="rateLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>微软雅黑</family>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">qproperty-alignment:'AlignCenter'</string>
-                </property>
-                <property name="text">
-                 <string>费率</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="rangeValueLabel">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLabel" name="rateValueLabel">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
+              <item row="3" column="0">
                <widget class="QLabel" name="defaultTempLabel">
                 <property name="font">
                  <font>
@@ -172,54 +182,15 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
+              <item row="2" column="1">
                <widget class="QLabel" name="serviceNoValueLabel">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
-               <widget class="QLabel" name="modeValuelabel">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="serviceNoLabel">
-                <property name="font">
-                 <font>
-                  <family>微软雅黑</family>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">qproperty-alignment:'AlignCenter'</string>
-                </property>
-                <property name="text">
-                 <string>服务对象数</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="label">
-                <property name="font">
-                 <font>
-                  <family>微软雅黑</family>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">qproperty-alignment:'AlignCenter'</string>
-                </property>
-                <property name="text">
-                 <string>默认风速</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="QLabel" name="label_2">
+              <item row="1" column="1">
+               <widget class="QLabel" name="rangeValueLabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -549,101 +520,89 @@
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <layout class="QGridLayout" name="gridLayout_4">
-            <item row="2" column="0">
+            <item row="2" column="2">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>°C</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>中风功率</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" alignment="Qt::AlignHCenter">
              <widget class="QLabel" name="label_8">
               <property name="text">
                <string>最低温度</string>
               </property>
              </widget>
             </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">qproperty-alignment:'AlignCenter'</string>
-              </property>
+            <item row="2" column="0" alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_28">
               <property name="text">
-               <string>费率</string>
+               <string>最高温度</string>
               </property>
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QComboBox" name="defaultFanComboBox"/>
-            </item>
-            <item row="6" column="2">
-             <widget class="QLabel" name="label_17">
+             <widget class="QLineEdit" name="lowRateLineEdit">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
-              </property>
-              <property name="text">
-               <string>RMB/kwh</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="2">
-             <widget class="QLabel" name="label_16">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_9">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="text">
-               <string>°C</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_15">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>°C</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_14">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>30</height>
+               </size>
               </property>
               <property name="styleSheet">
                <string notr="true">qproperty-alignment:'AlignCenter'</string>
               </property>
               <property name="text">
-               <string>服务对象数</string>
+               <string>温控模式</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
              <widget class="QRadioButton" name="coldRadioButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>制冷</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lowTempLineEdit"/>
-            </item>
-            <item row="4" column="0">
+            <item row="3" column="0">
              <widget class="QLabel" name="label_11">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -655,57 +614,6 @@
                <string>缺省温度</string>
               </property>
              </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="highTempLineEdit"/>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="styleSheet">
-               <string notr="true">qproperty-alignment:'AlignCenter'</string>
-              </property>
-              <property name="text">
-               <string>默认风速</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="RangeComboBox"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">qproperty-alignment:'AlignCenter'</string>
-              </property>
-              <property name="text">
-               <string>温控范围</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">qproperty-alignment:'AlignCenter'</string>
-              </property>
-              <property name="text">
-               <string>温控模式</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QLineEdit" name="defaultTempLineEdit"/>
             </item>
             <item row="0" column="2">
              <widget class="QRadioButton" name="hotRadioButton">
@@ -720,18 +628,220 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_28">
-              <property name="text">
-               <string>最高温度</string>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="defaultTempLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
              </widget>
             </item>
-            <item row="7" column="1">
-             <widget class="QComboBox" name="serviceNoComboBox"/>
+            <item row="11" column="1">
+             <widget class="QComboBox" name="serviceNoComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QLabel" name="label_16">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>°C</string>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0">
+             <widget class="QLabel" name="label_14">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">qproperty-alignment:'AlignCenter'</string>
+              </property>
+              <property name="text">
+               <string>服务对象数</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">qproperty-alignment:'AlignCenter'</string>
+              </property>
+              <property name="text">
+               <string>弱风费率</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="lowTempLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="highTempLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="styleSheet">
+               <string notr="true">qproperty-alignment:'AlignCenter'</string>
+              </property>
+              <property name="text">
+               <string>默认风速</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QComboBox" name="defaultFanComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QLabel" name="label_17">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>RMB/min</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>强风功率</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>强风费率</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>°C</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="label_30">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>弱风功率</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>中风费率</string>
+              </property>
+             </widget>
             </item>
             <item row="6" column="1">
-             <widget class="QLineEdit" name="rateLineEdit"/>
+             <widget class="QLineEdit" name="midRateLineEdit"/>
+            </item>
+            <item row="7" column="1">
+             <widget class="QLineEdit" name="highRateLineEdit"/>
+            </item>
+            <item row="8" column="1">
+             <widget class="QLineEdit" name="lowPLlineEdit"/>
+            </item>
+            <item row="9" column="1">
+             <widget class="QLineEdit" name="midPineEdit"/>
+            </item>
+            <item row="10" column="1">
+             <widget class="QLineEdit" name="highPLineEdit"/>
+            </item>
+            <item row="6" column="2">
+             <widget class="QLabel" name="label_31">
+              <property name="text">
+               <string>RMB/min</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="2">
+             <widget class="QLabel" name="label_32">
+              <property name="text">
+               <string>RMB/min</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="2">
+             <widget class="QLabel" name="label_33">
+              <property name="text">
+               <string>kw</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="2">
+             <widget class="QLabel" name="label_34">
+              <property name="text">
+               <string>kw</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="2">
+             <widget class="QLabel" name="label_35">
+              <property name="text">
+               <string>kw</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -830,7 +940,7 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QCheckBox" name="checkBox">
+             <widget class="QCheckBox" name="checkBox_1">
               <property name="text">
                <string>普通</string>
               </property>
@@ -944,56 +1054,56 @@
              </widget>
             </item>
             <item row="1" column="2">
-             <widget class="QCheckBox" name="checkBox_9">
+             <widget class="QCheckBox" name="vipCheckBox_1">
               <property name="text">
                <string>VIP</string>
               </property>
              </widget>
             </item>
             <item row="2" column="2">
-             <widget class="QCheckBox" name="checkBox_10">
+             <widget class="QCheckBox" name="vipCheckBox_2">
               <property name="text">
                <string>VIP</string>
               </property>
              </widget>
             </item>
             <item row="3" column="2">
-             <widget class="QCheckBox" name="checkBox_11">
+             <widget class="QCheckBox" name="vipCheckBox_3">
               <property name="text">
                <string>VIP</string>
               </property>
              </widget>
             </item>
             <item row="4" column="2">
-             <widget class="QCheckBox" name="checkBox_12">
+             <widget class="QCheckBox" name="vipCheckBox_4">
               <property name="text">
                <string>VIP</string>
               </property>
              </widget>
             </item>
             <item row="5" column="2">
-             <widget class="QCheckBox" name="checkBox_13">
+             <widget class="QCheckBox" name="vipCheckBox_5">
               <property name="text">
                <string>VIP</string>
               </property>
              </widget>
             </item>
             <item row="6" column="2">
-             <widget class="QCheckBox" name="checkBox_14">
+             <widget class="QCheckBox" name="vipCheckBox_6">
               <property name="text">
                <string>VIP</string>
               </property>
              </widget>
             </item>
             <item row="7" column="2">
-             <widget class="QCheckBox" name="checkBox_15">
+             <widget class="QCheckBox" name="vipCheckBox_7">
               <property name="text">
                <string>VIP</string>
               </property>
              </widget>
             </item>
             <item row="8" column="2">
-             <widget class="QCheckBox" name="checkBox_16">
+             <widget class="QCheckBox" name="vipCheckBox_8">
               <property name="text">
                <string>VIP</string>
               </property>
@@ -1027,7 +1137,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1270</width>
+     <width>1125</width>
      <height>26</height>
     </rect>
    </property>
